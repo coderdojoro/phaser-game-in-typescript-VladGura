@@ -6,6 +6,7 @@
  * webpack/webpack.common.js
  */
 import { precacheAndRoute } from 'workbox-precaching';
+self.__WB_DISABLE_DEV_LOGS = true;
 
 console.log('~~~~ Running sw.js');
 

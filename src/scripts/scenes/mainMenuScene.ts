@@ -3,7 +3,7 @@ import 'phaser';
 
 export default class MainMenuScene extends Phaser.Scene {
     rightKey:Phaser.Input.Keyboard.Key;
-    hero:
+    hero:Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
     constructor() {
         super({ key: 'MainMenuScene' });
@@ -33,18 +33,18 @@ export default class MainMenuScene extends Phaser.Scene {
         this.rightKey=this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D));
         this.hero = this.physics.add.sprite(200,200, 'idle-e-spritesheet',0); 
         this.anims.create({
-            key:'idle-e-anims',
+            key:'idle-e-anim',
             frames:this.anims.generateFrameNumbers('idle-e-spritesheet', {}) ,
             frameRate:10,
             repeat:-1
         });
         this.anims.create({
-            key:'walk-e-anims',
+            key:'walk-e-anim',
             frames:this.anims.generateFrameNumbers('walk-e-spritesheet', {}) ,
             frameRate:10,
             repeat:-1
         });
-        this.hero.anims.play('idle-e-anims')
+        this.hero.anims.play('idle-e-anim')
 
     }
 

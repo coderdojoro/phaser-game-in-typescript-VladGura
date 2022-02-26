@@ -1,19 +1,22 @@
 import 'phaser';
-
+import Hero from '../entities/hero';
 
 export default class MainMenuScene extends Phaser.Scene {
-    rightKey:Phaser.Input.Keyboard.Key;
-    hero:Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-
+    hero: Hero;
     constructor() {
         super({ key: 'MainMenuScene' });
     }
 
     preload() {
-        this.load.spritesheet('idle-e-spritesheet', 'assets/hero/idle_aggro_E.png', {frameWidth:128, frameHeight:128}) 
-        this.load.spritesheet('walk-e-spritesheet', 'assets/hero/walk_aggro_E.png', {frameWidth:128, frameHeight:128}) 
+        this.load.spritesheet('idle-e-spritesheet', 'assets/hero/idle_aggro_E.png', { frameWidth: 128, frameHeight: 128 });
+        this.load.spritesheet('walk-e-spritesheet', 'assets/hero/walk_aggro_E.png', { frameWidth: 128, frameHeight: 128 });
+        this.load.spritesheet('walk-s-spritesheet', 'assets/hero/walk_aggro_S.png', { frameWidth: 128, frameHeight: 128 });
+        this.load.spritesheet('idle-s-spritesheet', 'assets/hero/idle_aggro_S.png', { frameWidth: 128, frameHeight: 128 });
+        this.load.spritesheet('idle-n-spritesheet', 'assets/hero/idle_aggro_N.png', { frameWidth: 128, frameHeight: 128 });
+        this.load.spritesheet('walk-n-spritesheet', 'assets/hero/walk_aggro_N.png', { frameWidth: 128, frameHeight: 128 });
+        this.load.image('tiles', 'assets/tilesets/ground-tileset.png');
+        this.load.tilemapTiledJSON('map', 'assets/tilemaps/town.json');
     }
-
     create() {
         // remove the loading screen
         let loadingScreen = document.getElementById('loading-screen');
@@ -30,33 +33,28 @@ export default class MainMenuScene extends Phaser.Scene {
 
         this.cameras.main.fadeIn(2000);
         this.cameras.main.setBackgroundColor('#008080');
-        this.rightKey=this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D));
-        this.hero = this.physics.add.sprite(200,200, 'idle-e-spritesheet',0); 
-        this.anims.create({
-            key:'idle-e-anim',
-            frames:this.anims.generateFrameNumbers('idle-e-spritesheet', {}) ,
-            frameRate:10,
-            repeat:-1
-        });
-        this.anims.create({
-            key:'walk-e-anim',
-            frames:this.anims.generateFrameNumbers('walk-e-spritesheet', {}) ,
-            frameRate:10,
-            repeat:-1
-        });
-        this.hero.anims.play('idle-e-anim')
 
+        let map = this.make.tilemap({ key: 'map' });
+        let tileset = map.addTilesetImage('ground', 'tiles', 32, 32, 1, 2);
+
+        let belowLayer = map.createLayer('below hero', tileset, 0, 0);
+        let worldlayer = map.createLayer('world', tileset, 0, 0);
+        let abovelayer = map.createLayer('above hero', tileset, 0, 0);
+        worldlayer.setCollisionBetween(tileset.firstgid, tileset.firstgid + tileset.total, true);
+
+        let spawnPoint = map.findObject('objects', (obj) => obj.name == 'hero spawn');
+
+        this.hero = new Hero(this, spawnPoint.x, spawnPoint.y);
+
+        abovelayer.setDepth(100);
+        this.hero.setDepth(50);
+
+        this.physics.add.collider(this.hero, worldlayer);
+        this.cameras.main.startFollow(this.hero);
+        this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+        this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+        this.physics.world.setBoundsCollision(true, true, true, true);
     }
 
-    update(time, delta) {
-        this.hero.body.setVelocity(0);
-        
-        if(this.rightKey.isDown) {
-            this.hero.body.setVelocityX(175);
-            this.hero.anims.play('walk-e-anim',true);  
-        } else {
-            this.hero.anims.play('idle-e-anim',true)
-        }
-
-    }
+    update(time, delta) {}
 }
